@@ -5,18 +5,28 @@
  */
 package virtualclassroom;
 
+import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  *
  * @author kartikey
  */
-public class Loginpage extends javax.swing.JFrame {
+public class Loginpage extends javax.swing.JFrame{
+    String Selection = new String();
+    public static String Username = new String();
+    public static String Password = new String();
 
     /**
      * Creates new form Loginpage
      */
     public Loginpage() {
         initComponents();
-        
+        Selection = Homepage.Selection;
     }
 
     /**
@@ -41,6 +51,11 @@ public class Loginpage extends javax.swing.JFrame {
 
         jButton1.setFont(new java.awt.Font("LucidaMacBold", 0, 15)); // NOI18N
         jButton1.setText("Sign in");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -56,8 +71,19 @@ public class Loginpage extends javax.swing.JFrame {
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/virtualclassroom/upes-brand-logo(1).jpg"))); // NOI18N
 
+        jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jPasswordField1ActionPerformed(evt);
+            }
+        });
+
         jButton2.setFont(new java.awt.Font("LucidaMacBold", 0, 15)); // NOI18N
         jButton2.setText("I don't have an account");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setFont(new java.awt.Font("LucidaMacBold", 0, 15)); // NOI18N
         jButton3.setText("Back");
@@ -120,10 +146,11 @@ public class Loginpage extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -131,6 +158,92 @@ public class Loginpage extends javax.swing.JFrame {
         new Homepage().setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        if("A Student".equals(Selection))
+        {
+            this.dispose();
+            new StudentRegister().setVisible(true);
+            
+        }
+        else if("A Faculty".equals(Selection))
+        {
+            this.dispose();
+            new FacultyRegister().setVisible(true);
+        }
+        else if("An Administrator".equals(Selection))
+        {
+            JOptionPane.showMessageDialog(null, "Account for administrator can't be created."); 
+            new AdminPanel().setVisible(true);
+        }
+        else
+            JOptionPane.showMessageDialog(null,"Error!");     
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed
+           
+    }//GEN-LAST:event_jPasswordField1ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Username = jTextField1.getText();
+        Password = jPasswordField1.getText();
+        selectAllQuery();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+      public static Connection connect() {
+        // SQLite connection string
+        String url = "jdbc:sqlite:/home/kartikey/NetBeansProjects/VirtualClassRoom/DataBase/VirtualClassroom.sqlite";
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return conn;
+    }
+ 
+    
+    /**
+     * select all rows in the warehouses table
+     */
+    public static void selectAllQuery(){
+        String sql = "SELECT * from TempLoginData";
+        String TempUsername;
+        String TempPassword;
+        String Field = null;
+        String Post = Homepage.Selection;
+      
+        
+       
+        try (Connection conn = Loginpage.connect();
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+            
+            // loop through the result set
+            while (rs.next()) {
+                TempUsername = rs.getString("name");
+                TempPassword = rs.getString("password");
+                Field = rs.getString("field");
+                
+                System.out.print(Field);
+                System.out.print(TempPassword);
+                System.out.print(TempUsername);
+                System.out.print(Username);
+                System.out.print(Password);
+                
+                if((TempUsername.equals(Username)) && (TempPassword.equals(Password)))
+                {
+                    //Dispose and set new frame
+                    if("".equals(Field))
+                    JOptionPane.showMessageDialog(null, "Logged into Student!");
+                    else
+                    JOptionPane.showMessageDialog(null, "Logged into Faculty");
+                    
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -157,12 +270,12 @@ public class Loginpage extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Loginpage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-               
                 new Loginpage().setVisible(true);
+                
             }
         });
     }
