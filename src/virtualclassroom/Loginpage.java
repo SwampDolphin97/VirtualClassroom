@@ -173,7 +173,7 @@ public class Loginpage extends javax.swing.JFrame{
         else if("An Administrator".equals(Selection))
         {
             JOptionPane.showMessageDialog(null, "Account for administrator can't be created."); 
-            new AdminPanel().setVisible(true);
+            
         }
         else
             JOptionPane.showMessageDialog(null,"Error!");     
@@ -206,7 +206,7 @@ public class Loginpage extends javax.swing.JFrame{
      * select all rows in the warehouses table
      */
     public static void selectAllQuery(){
-        String sql = "SELECT * from TempLoginData";
+        String sql = "SELECT * from LoginData";
         String TempUsername;
         String TempPassword;
         String Field = null;
@@ -223,21 +223,27 @@ public class Loginpage extends javax.swing.JFrame{
                 TempUsername = rs.getString("name");
                 TempPassword = rs.getString("password");
                 Field = rs.getString("field");
-                
-                System.out.print(Field);
-                System.out.print(TempPassword);
-                System.out.print(TempUsername);
-                System.out.print(Username);
-                System.out.print(Password);
-                
+             //   System.out.print(TempUsername);
+            //    System.out.print("TempPassword");
                 if((TempUsername.equals(Username)) && (TempPassword.equals(Password)))
                 {
-                    //Dispose and set new frame
-                    if("".equals(Field))
-                    JOptionPane.showMessageDialog(null, "Logged into Student!");
-                    else
-                    JOptionPane.showMessageDialog(null, "Logged into Faculty");
                     
+                    //Dispose and set new frame
+                    
+                    if("A Faculty".equals(Homepage.Selection))
+                    {
+                        new Faculty().FacultyConnection();
+                        
+                    }
+                    else if("An Administrator".equals(Homepage.Selection))
+                    {
+                        new AdminPanel().setVisible(true);
+                    }
+                    else
+                    {
+                       new Student().studentConnection();
+                       System.out.print("Student Login!");
+                    }
                 }
             }
         } catch (SQLException e) {

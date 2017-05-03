@@ -7,6 +7,7 @@ package virtualclassroom;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -51,6 +52,7 @@ public class AdminPanel extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jList1.setFont(new java.awt.Font("Lucida MAC", 0, 15)); // NOI18N
         jList1.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
@@ -107,7 +109,7 @@ public class AdminPanel extends javax.swing.JFrame {
                     .addComponent(jButton3)
                     .addComponent(jButton2)
                     .addComponent(jButton1))
-                .addGap(0, 7, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -147,14 +149,22 @@ public class AdminPanel extends javax.swing.JFrame {
                 
                 if(TempUsername.equals(username))
                 {
-                /*System.out.print("Successful");
+                /*
+                System.out.print("Successful");
                 System.out.print(TempField);
                 System.out.print(TempPassword);
                 System.out.print(TempUsername);
                 System.out.print(TempEmail);
                 System.out.print(TempPost);
                 */
-                
+                conn.close();
+                connect();
+                insert(TempUsername,TempEmail,TempPassword,TempPost,TempField);
+                conn.close();
+                connect();
+                delete(TempUsername);
+                this.dispose();
+                new AdminPanel().setVisible(true);
                 }
                 
                
@@ -166,7 +176,13 @@ public class AdminPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        String test = jList1.getSelectedValue();
+        String arr[] = test.split(" ", 2);
+        String username = arr[0];
+        
+        delete(username);
+        this.dispose();
+        new AdminPanel().setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     //LoadList
@@ -182,6 +198,21 @@ public class AdminPanel extends javax.swing.JFrame {
         return conn;
     }
  
+     public void insert(String name,String email,String password,String post,String field) {
+        String sql = "INSERT INTO LoginData(name,password,email,post,field) VALUES(?,?,?,?,?)";
+ 
+        try (Connection conn = StudentRegister.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, password);
+            pstmt.setString(3, email);
+            pstmt.setString(4,post);
+            pstmt.setString(5,field);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     
     /**
      * select all rows in the warehouses table
@@ -223,6 +254,22 @@ public class AdminPanel extends javax.swing.JFrame {
             System.out.println(e.getMessage());
         }
         return Test;
+    }
+    
+    public void delete(String Username) {
+        String sql = "DELETE FROM TempLoginData WHERE name = ?";
+ 
+        try (Connection conn = this.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+ 
+            // set the corresponding param
+            pstmt.setString(1, Username);
+            // execute the delete statement
+            pstmt.executeUpdate();
+ 
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
     /**
      * @param args the command line arguments

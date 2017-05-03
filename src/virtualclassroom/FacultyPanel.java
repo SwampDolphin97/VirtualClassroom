@@ -5,17 +5,36 @@
  */
 package virtualclassroom;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author kartikey
  */
 public class FacultyPanel extends javax.swing.JFrame {
 
+    Socket Client;
+    ServerSocket Server;
+    public static BufferedReader ServerReader,ClientReader;
+    BufferedWriter ServerWriter,ClientWriter;
+    
     /**
      * Creates new form FacultyPanel
      */
     public FacultyPanel() {
         initComponents();
+        jLabel1.setText("Hi "+Loginpage.Username+"!");
+          
     }
 
     /**
@@ -29,24 +48,41 @@ public class FacultyPanel extends javax.swing.JFrame {
 
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
         jLabel1 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jTextArea1 = new java.awt.TextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTextField1.setText("jTextField1");
+        jTextField1.setFont(new java.awt.Font("Lucida MAC", 0, 15)); // NOI18N
+        jTextField1.setText("Your answer");
 
-        jButton1.setText("jButton1");
-
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        jButton1.setFont(new java.awt.Font("Lucida MAC", 0, 15)); // NOI18N
+        jButton1.setText("Send");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
         });
-        jScrollPane1.setViewportView(jList1);
 
+        jLabel1.setFont(new java.awt.Font("Lucida MAC", 0, 15)); // NOI18N
         jLabel1.setText("jLabel1");
+
+        jButton2.setFont(new java.awt.Font("Lucida MAC", 0, 15)); // NOI18N
+        jButton2.setText("Online");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("ClientOnline");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -58,21 +94,31 @@ public class FacultyPanel extends javax.swing.JFrame {
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton3)
+                                .addGap(47, 47, 47)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jTextArea1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton2)
+                        .addComponent(jButton3)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextArea1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
@@ -82,7 +128,119 @@ public class FacultyPanel extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        jButton2.setText("Offline");
+        readConnection();
+        Thread thread = new Thread((Runnable) this);
+        thread.start();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try
+        {
+            ServerWriter.write(jLabel1.getText()+": "+jTextField1.getText());
+            ServerWriter.newLine();
+            ServerWriter.flush();
+        }
+        catch(Exception ex){
+            Logger.getLogger(FacultyPanel.class.getName()).log(Level.SEVERE,null, ex);
+        }
+        jTextArea1.append("Me:"+jTextField1.getText());
+       jTextField1.setText("");
+                
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            clientConnection();
+        } catch (IOException ex) {
+            Logger.getLogger(FacultyPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Thread thread = new Thread((Runnable) this);
+        thread.start();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void clientConnection() throws IOException
+    {
+        try{
+            String ip = JOptionPane.showInputDialog("Enter IP Address:");
+            Client = new Socket(ip,2000);
+            ServerReader = new BufferedReader(new InputStreamReader(Client.getInputStream()));
+            ServerWriter = new BufferedWriter(new OutputStreamWriter(Client.getOutputStream()));
+            
+        }
+        catch(UnknownHostException ex)
+        {
+            System.out.print("Accept Failed");
+            System.exit(1);
+        }
+        
+    }
+    
+    private void readConnection(){
+        try{
+            try{
+                try{
+                    Server = new ServerSocket(2000);
+                    this.setTitle("Please Wait...");
+                }
+                catch(Exception ex)
+                {
+                    System.out.print("Could not listen");
+                }
+            Client = Server.accept();
+            this.setTitle("Connected");
+        }
+            catch(IOException ex){
+                System.out.print("Accept failure");
+                System.exit(1);
+            }
+         ServerReader = new BufferedReader(new InputStreamReader(Client.getInputStream()));
+         ServerWriter = new BufferedWriter(new OutputStreamWriter(Client.getOutputStream()));
+    }
+        catch(IOException ex)
+        {
+            System.out.print("Read Failure");
+            System.exit(1);
+        }
+    }
+    
+    private void ClientDisconnect()
+    {
+        try{
+            Client.close();
+            ServerReader.close();
+            ServerWriter.close();
+            //Jserver.setenabled(true);
+            //Jbon.settext("Connect");
+        }
+        catch(IOException ex){
+            Logger.getLogger("Logging Failed");
+        }
+    }
+    
+    private void ServerDisconnect()
+    {
+         try{
+            ServerReader.close();
+            ServerWriter.close();
+            //Jserver.setenabled(true);
+            //Jbon.settext("Connect");
+            this.setTitle("Disconnect");
+         }
+        catch(IOException ex){
+            Logger.getLogger("Logging Failed");
+        }
+        
+    }
+    
+    void test()
+    {
+      
+    }
+    
     /**
+     * 
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -108,20 +266,33 @@ public class FacultyPanel extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(FacultyPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //FacultyPanel obj = new FacultyPanel();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                new FacultyPanel().setVisible(true);
+             FacultyPanel obj = new FacultyPanel();
+             obj.setVisible(true);
+             while (true) {
+                 try{
+                    System.out.print(ServerReader.readLine());
+                    obj.jTextArea1.append(ServerReader.readLine());
+                 }catch(IOException ex)
+                 {
+                     Logger.getLogger(FacultyPanel.class.getName()).log(Level.SEVERE,null, ex);
+                 }
+             }
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private java.awt.TextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
